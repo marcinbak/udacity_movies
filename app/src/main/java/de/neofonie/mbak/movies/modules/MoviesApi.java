@@ -12,26 +12,26 @@
  */
 package de.neofonie.mbak.movies.modules;
 
-import de.neofonie.mbak.movies.BuildConfig;
-import de.neofonie.mbak.movies.di.scopes.ApplicationScope;
 import io.reactivex.Single;
-
-import javax.inject.Inject;
+import retrofit2.http.GET;
+import retrofit2.http.Headers;
+import retrofit2.http.Query;
 
 /**
  * Created by marcinbak on 18/10/2016.
  */
-@ApplicationScope
-public class MoviesManager {
+public interface MoviesApi {
 
-  @Inject MoviesApi mApi;
+  @GET("/3/movie/popular")
+  @Headers("Accept: application/json")
+  Single<MoviesResponse> getPopular(@Query("api_key") String apiKey,
+                                    @Query("language") String language,
+                                    @Query("page") Integer page);
 
-  @Inject
-  MoviesManager() {
-  }
-
-  public Single<MoviesResponse> getMovies() {
-    return mApi.getPopular(BuildConfig.MOVIES_API_KEY, null, null);
-  }
+  @GET("/3/movie/top_rated")
+  @Headers("Accept: application/json")
+  Single<MoviesResponse> getTopRated(@Query("api_key") String apiKey,
+                                     @Query("language") String language,
+                                     @Query("page") Integer page);
 
 }

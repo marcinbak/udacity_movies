@@ -10,28 +10,27 @@
  *
  * Removing this copyright statement is also a violation.
  */
-package de.neofonie.mbak.movies.modules;
+package de.neofonie.mbak.movies.commons;
 
-import de.neofonie.mbak.movies.BuildConfig;
-import de.neofonie.mbak.movies.di.scopes.ApplicationScope;
-import io.reactivex.Single;
-
-import javax.inject.Inject;
+import io.reactivex.SingleObserver;
+import io.reactivex.disposables.Disposable;
 
 /**
  * Created by marcinbak on 18/10/2016.
  */
-@ApplicationScope
-public class MoviesManager {
+public class BaseSingleObserver<T> implements SingleObserver<T> {
+  @Override
+  public void onSubscribe(Disposable d) {
 
-  @Inject MoviesApi mApi;
-
-  @Inject
-  MoviesManager() {
   }
 
-  public Single<MoviesResponse> getMovies() {
-    return mApi.getPopular(BuildConfig.MOVIES_API_KEY, null, null);
+  @Override
+  public void onSuccess(T value) {
+
   }
 
+  @Override
+  public void onError(Throwable e) {
+
+  }
 }

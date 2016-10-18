@@ -12,26 +12,30 @@
  */
 package de.neofonie.mbak.movies.modules;
 
-import de.neofonie.mbak.movies.BuildConfig;
-import de.neofonie.mbak.movies.di.scopes.ApplicationScope;
-import io.reactivex.Single;
-
-import javax.inject.Inject;
+import lombok.Data;
 
 /**
  * Created by marcinbak on 18/10/2016.
  */
-@ApplicationScope
-public class MoviesManager {
+@Data
+public class Movie {
 
-  @Inject MoviesApi mApi;
-
-  @Inject
-  MoviesManager() {
-  }
-
-  public Single<MoviesResponse> getMovies() {
-    return mApi.getPopular(BuildConfig.MOVIES_API_KEY, null, null);
-  }
-
+  //"/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg"
+  String poster_path;
+  String overview;
+  String release_date;
+  String title;
+  String original_title;
+  long   id;
 }
+
+//    "adult": false,
+//    "genre_ids": [
+//    80
+//    ],
+//    "original_language": "en",
+//    "backdrop_path": "/ndlQ2Cuc3cjTL7lTynw6I4boP4S.jpg",
+//    "popularity": 48.261451,
+//    "vote_count": 1466,
+//    "video": false,
+//    "vote_average": 5.91

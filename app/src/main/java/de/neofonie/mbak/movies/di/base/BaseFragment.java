@@ -14,12 +14,15 @@ package de.neofonie.mbak.movies.di.base;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
+import butterknife.Unbinder;
 import de.neofonie.mbak.movies.di.ActivityComponent;
 
 /**
  * Created by marcinbak on 18/10/2016.
  */
 public abstract class BaseFragment extends Fragment {
+
+  protected Unbinder mUnbinder;
 
   @Override
   public void onAttach(Context context) {
@@ -35,6 +38,11 @@ public abstract class BaseFragment extends Fragment {
     }
   }
 
+  @Override
+  public void onDestroyView() {
+    super.onDestroyView();
+    if (mUnbinder != null) mUnbinder.unbind();
+  }
 
   protected abstract void inject(ActivityComponent component);
 

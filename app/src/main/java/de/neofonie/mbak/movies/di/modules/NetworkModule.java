@@ -19,6 +19,7 @@ import dagger.Provides;
 import de.neofonie.mbak.movies.R;
 import de.neofonie.mbak.movies.di.qualifiers.ForApplication;
 import de.neofonie.mbak.movies.di.scopes.ApplicationScope;
+import de.neofonie.mbak.movies.modules.MoviesApi;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.moshi.MoshiConverterFactory;
@@ -38,13 +39,19 @@ public final class NetworkModule {
   @Provides
   @ApplicationScope
   Retrofit provideAuthAdapter(OkHttpClient client,
-                                     @ForApplication Context context) {
+                              @ForApplication Context context) {
     return new Retrofit.Builder()
         .baseUrl(context.getString(R.string.backend_url))
         .client(client)
         .addConverterFactory(MoshiConverterFactory.create())
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
         .build();
+  }
+
+  @Provides
+  @ApplicationScope
+  MoviesApi provideMoviesApi(Retrofit retrofit) {
+    return retrofit.create(MoviesApi.class);
   }
 
 }

@@ -12,26 +12,18 @@
  */
 package de.neofonie.mbak.movies.modules;
 
-import de.neofonie.mbak.movies.BuildConfig;
-import de.neofonie.mbak.movies.di.scopes.ApplicationScope;
-import io.reactivex.Single;
+import lombok.Data;
 
-import javax.inject.Inject;
+import java.util.List;
 
 /**
  * Created by marcinbak on 18/10/2016.
  */
-@ApplicationScope
-public class MoviesManager {
+@Data
+public class MoviesResponse {
 
-  @Inject MoviesApi mApi;
-
-  @Inject
-  MoviesManager() {
-  }
-
-  public Single<MoviesResponse> getMovies() {
-    return mApi.getPopular(BuildConfig.MOVIES_API_KEY, null, null);
-  }
-
+  int         page;
+  int         total_results;
+  int         total_pages;
+  List<Movie> results;
 }
