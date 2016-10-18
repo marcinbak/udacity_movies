@@ -12,11 +12,7 @@
  */
 package de.neofonie.mbak.movies.di;
 
-import dagger.Component;
 import de.neofonie.mbak.movies.di.base.BaseApplication;
-import de.neofonie.mbak.movies.di.modules.AppModule;
-import de.neofonie.mbak.movies.di.modules.NetworkModule;
-import de.neofonie.mbak.movies.di.scopes.ApplicationScope;
 
 /**
  * Created by marcinbak on 18/10/2016.

@@ -15,7 +15,9 @@ package de.neofonie.mbak.movies.di;
 import dagger.Subcomponent;
 import de.neofonie.mbak.movies.di.scopes.ActivityScope;
 import de.neofonie.mbak.movies.ui.details.DetailsActivity;
+import de.neofonie.mbak.movies.ui.details.DetailsFragment;
 import de.neofonie.mbak.movies.ui.movies.MainActivity;
+import de.neofonie.mbak.movies.ui.movies.MoviesGridFragment;
 
 /**
  * Created by marcinbak on 18/10/2016.
@@ -28,6 +30,10 @@ public interface ActivityComponent {
   void inject(MainActivity mainActivity);
 
   void inject(DetailsActivity detailsActivity);
+
+  void inject(MoviesGridFragment moviesGridFragment);
+
+  void inject(DetailsFragment detailsFragment);
 
 //  void inject(BaseActivity baseActivity);
 }

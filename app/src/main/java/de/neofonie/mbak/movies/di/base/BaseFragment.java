@@ -12,11 +12,30 @@
  */
 package de.neofonie.mbak.movies.di.base;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
+import de.neofonie.mbak.movies.di.ActivityComponent;
 
 /**
  * Created by marcinbak on 18/10/2016.
  */
 public abstract class BaseFragment extends Fragment {
+
+  @Override
+  public void onAttach(Context context) {
+    super.onAttach(context);
+    inject(getComponent(context));
+  }
+
+  private ActivityComponent getComponent(Context context) {
+    if (context instanceof BaseActivity) {
+      return ((BaseActivity) context).mComponent;
+    } else {
+      throw new IllegalArgumentException("This view should be attached to Activity extending BaseActivity. Please override getComponent() to provide different source of ActivityComponent to which this View should inject.");
+    }
+  }
+
+
+  protected abstract void inject(ActivityComponent component);
 
 }
