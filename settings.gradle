@@ -1,0 +1,11 @@
+gradle.ext {
+  moviesApiKey = ''
+  try {
+    Properties properties = new Properties()
+    properties.load(new File('local.properties').newDataInputStream())
+    moviesApiKey = properties.getProperty('movies.api.key', '')
+  } catch (Exception ignore) {
+  }
+}
+
+include ':app'
