@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,6 +23,7 @@ import de.neofonie.mbak.movies.modules.preferences.PreferencesManager;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.schedulers.Schedulers;
 
@@ -45,8 +47,9 @@ public class MoviesGridFragment extends BaseFragment implements AdapterView.OnIt
   private MoviesResponse                mResponse;
   private RecyclerView.OnScrollListener mScrollListener;
 
-  private boolean    mLoading    = false;
-  private Disposable mDisposable = Disposables.disposed();
+  private boolean    mLoading          = false;
+  private Disposable mDisposable       = Disposables.disposed();
+  private Disposable mDialogDisposable = Disposables.disposed();
 
   public MoviesGridFragment() {
     // Required empty public constructor
@@ -157,13 +160,26 @@ public class MoviesGridFragment extends BaseFragment implements AdapterView.OnIt
   }
 
   private void handleError(Throwable throwable) {
+    final AlertDialog dialog = new AlertDialog.Builder(getContext())
+        .setMessage(R.string.network_error_msg)
+        .setCancelable(false)
+        .setNegativeButton(R.string.close_label, null)
+        .show();
 
+    mDialogDisposable.dispose();
+    mDialogDisposable = Disposables.fromAction(new Action() {
+      @Override
+      public void run() throws Exception {
+        dialog.dismiss();
+      }
+    });
   }
 
   @Override
   public void onStop() {
     super.onStop();
     mDisposable.dispose();
+    mDialogDisposable.dispose();
   }
 
   @Override
