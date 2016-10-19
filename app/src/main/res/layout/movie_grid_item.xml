@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-           android:id="@+id/movie_teaser"
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content"/>
+<de.neofonie.mbak.movies.ui.widgets.AspectRatioImageView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/movie_teaser"
+    android:scaleType="fitStart"
+    app:dominantMeasurement="width"
+    app:aspectRatioEnabled="true"
+    app:aspectRatio="1.503"
+    android:adjustViewBounds="true"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"/>

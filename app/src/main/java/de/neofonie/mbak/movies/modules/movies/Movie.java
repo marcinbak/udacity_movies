@@ -10,7 +10,7 @@
  *
  * Removing this copyright statement is also a violation.
  */
-package de.neofonie.mbak.movies.modules;
+package de.neofonie.mbak.movies.modules.movies;
 
 import org.parceler.Parcel;
 

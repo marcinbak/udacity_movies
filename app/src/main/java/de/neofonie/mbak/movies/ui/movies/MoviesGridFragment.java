@@ -3,19 +3,22 @@ package de.neofonie.mbak.movies.ui.movies;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.neofonie.mbak.movies.R;
 import de.neofonie.mbak.movies.di.ActivityComponent;
 import de.neofonie.mbak.movies.di.base.BaseFragment;
-import de.neofonie.mbak.movies.modules.MoviesManager;
-import de.neofonie.mbak.movies.modules.MoviesResponse;
+import de.neofonie.mbak.movies.modules.movies.MoviesManager;
+import de.neofonie.mbak.movies.modules.movies.MoviesResponse;
+import de.neofonie.mbak.movies.modules.preferences.PreferencesManager;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
@@ -29,15 +32,19 @@ import javax.inject.Inject;
  * Use the {@link MoviesGridFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MoviesGridFragment extends BaseFragment {
+public class MoviesGridFragment extends BaseFragment implements AdapterView.OnItemSelectedListener {
 
   @BindView(R.id.recycler_view) RecyclerView mRecyclerView;
 
-  @Inject MoviesManager mMoviesManager;
+  @Inject MoviesManager      mMoviesManager;
+  @Inject PreferencesManager mPrefsManager;
 
-  private GridLayoutManager mLayoutManager;
-  private MoviesAdapter     mAdapter;
+  private GridLayoutManager             mLayoutManager;
+  private MoviesAdapter                 mAdapter;
+  private MoviesResponse                mResponse;
+  private RecyclerView.OnScrollListener mScrollListener;
 
+  private boolean    mLoading    = false;
   private Disposable mDisposable = Disposables.disposed();
 
   public MoviesGridFragment() {
@@ -56,6 +63,12 @@ public class MoviesGridFragment extends BaseFragment {
   }
 
   @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setHasOptionsMenu(true);
+  }
+
+  @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
     // Inflate the layout for this fragment
@@ -71,6 +84,29 @@ public class MoviesGridFragment extends BaseFragment {
 
     mAdapter = new MoviesAdapter();
     mRecyclerView.setAdapter(mAdapter);
+
+    mScrollListener = new RecyclerView.OnScrollListener() {
+      @Override
+      public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+        int totalItemCount = mLayoutManager.getItemCount();
+        int lastVisibleItem = mLayoutManager.findLastVisibleItemPosition();
+
+        if (lastVisibleItem > totalItemCount - 2) {
+          if (mResponse.getPage() < mResponse.getTotal_pages()) {
+            subscribeForPage(mResponse.getPage() + 1);
+          }
+        }
+      }
+    };
+
+    mRecyclerView.addOnScrollListener(mScrollListener);
+    subscribeForPage(null);
+  }
+
+  @Override
+  public void onDestroyView() {
+    mRecyclerView.removeOnScrollListener(mScrollListener);
+    super.onDestroyView();
   }
 
   @Override
@@ -81,13 +117,22 @@ public class MoviesGridFragment extends BaseFragment {
   @Override
   public void onStart() {
     super.onStart();
+  }
+
+  private void subscribeForPage(Integer page) {
+    if (mLoading) {
+      return;
+    }
+    mLoading = true;
+    mDisposable.dispose();
     mDisposable = mMoviesManager
-        .getMovies()
+        .getMovies(page)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new BiConsumer<MoviesResponse, Throwable>() {
           @Override
           public void accept(MoviesResponse moviesResponse, Throwable throwable) throws Exception {
+            mLoading = false;
             if (throwable != null) {
               handleError(throwable);
             } else {
@@ -98,8 +143,12 @@ public class MoviesGridFragment extends BaseFragment {
   }
 
   private void handleResponse(MoviesResponse moviesResponse) {
-    mAdapter.clearData();
-    mAdapter.nextPage(moviesResponse.getResults());
+    mResponse = moviesResponse;
+    if (mResponse.getPage() > 1) {
+      mAdapter.nextPage(moviesResponse.getResults());
+    } else {
+      mAdapter.setData(moviesResponse.getResults());
+    }
   }
 
   private void handleError(Throwable throwable) {
@@ -111,4 +160,29 @@ public class MoviesGridFragment extends BaseFragment {
     super.onStop();
     mDisposable.dispose();
   }
+
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    inflater.inflate(R.menu.details_menu, menu);
+    MenuItem item = menu.findItem(R.id.action_sort);
+    Spinner spinner = (Spinner) MenuItemCompat.getActionView(item);
+    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+        R.array.sort_options, android.R.layout.simple_spinner_item);
+    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    spinner.setAdapter(adapter); // set the adapter to provide layout of rows and content
+    spinner.setSelection(mPrefsManager.getSelectedSortType(), false);
+    spinner.setOnItemSelectedListener(this); // set the listener, to perform actions based on item selection
+  }
+
+  @Override
+  public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+    mPrefsManager.setSelectedSortType(position);
+    subscribeForPage(null);
+  }
+
+  @Override
+  public void onNothingSelected(AdapterView<?> parent) {
+
+  }
+
 }

@@ -21,9 +21,9 @@ import android.widget.ImageView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
 import de.neofonie.mbak.movies.R;
-import de.neofonie.mbak.movies.modules.Movie;
+import de.neofonie.mbak.movies.modules.movies.Movie;
 import de.neofonie.mbak.movies.ui.details.DetailsActivity;
 
 import java.util.ArrayList;
@@ -63,10 +63,23 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     notifyItemRangeInserted(previousSize, movies.size());
   }
 
-  public void clearData() {
-    int size = mMovies.size();
+  @Override
+  public void onViewRecycled(MovieViewHolder holder) {
+//    Glide.clear(holder.mTeaserImageView);
+    Picasso.with(holder.mContext).cancelRequest(holder.mTeaserImageView);
+  }
+
+  @Override
+  public boolean onFailedToRecycleView(MovieViewHolder holder) {
+//    Glide.clear(holder.mTeaserImageView);
+    Picasso.with(holder.mContext).cancelRequest(holder.mTeaserImageView);
+    return super.onFailedToRecycleView(holder);
+  }
+
+  public void setData(List<Movie> results) {
     mMovies.clear();
-    notifyItemRangeRemoved(0, size);
+    mMovies.addAll(results);
+    notifyDataSetChanged();
   }
 
   public static class MovieViewHolder extends RecyclerView.ViewHolder {
@@ -84,11 +97,17 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
     public void bind(Movie movie) {
       mModel = movie;
-
-      Glide.with(mContext)
+      Picasso.with(mContext).cancelRequest(mTeaserImageView);
+      Picasso.with(mContext)
           .load(movie.getTeaserPath())
-          .fitCenter()
+          .fit()
           .into(mTeaserImageView);
+
+//      Glide.clear(mTeaserImageView);
+//      Glide.with(mContext)
+//          .load(movie.getTeaserPath())
+//          .centerCrop()
+//          .into(mTeaserImageView);
     }
 
     @OnClick(R.id.movie_teaser)
@@ -97,6 +116,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         DetailsActivity.start(mContext, mModel);
       }
     }
+
   }
 
 }

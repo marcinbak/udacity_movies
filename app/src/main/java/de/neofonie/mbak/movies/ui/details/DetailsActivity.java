@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import de.neofonie.mbak.movies.R;
 import de.neofonie.mbak.movies.di.base.BaseActivity;
-import de.neofonie.mbak.movies.modules.Movie;
+import de.neofonie.mbak.movies.modules.movies.Movie;
 import org.parceler.Parcels;
 
 public class DetailsActivity extends BaseActivity {

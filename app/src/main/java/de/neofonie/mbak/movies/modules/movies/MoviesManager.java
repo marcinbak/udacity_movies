@@ -10,10 +10,11 @@
  *
  * Removing this copyright statement is also a violation.
  */
-package de.neofonie.mbak.movies.modules;
+package de.neofonie.mbak.movies.modules.movies;
 
 import de.neofonie.mbak.movies.BuildConfig;
 import de.neofonie.mbak.movies.di.scopes.ApplicationScope;
+import de.neofonie.mbak.movies.modules.preferences.PreferencesManager;
 import io.reactivex.Single;
 
 import javax.inject.Inject;
@@ -24,14 +25,21 @@ import javax.inject.Inject;
 @ApplicationScope
 public class MoviesManager {
 
-  @Inject MoviesApi mApi;
+  @Inject MoviesApi          mApi;
+  @Inject PreferencesManager mPrefsManager;
 
   @Inject
   MoviesManager() {
   }
 
-  public Single<MoviesResponse> getMovies() {
-    return mApi.getPopular(BuildConfig.MOVIES_API_KEY, null, null);
+  public Single<MoviesResponse> getMovies(Integer page) {
+    int sortType = mPrefsManager.getSelectedSortType();
+
+    if (sortType == 0) {
+      return mApi.getPopular(BuildConfig.MOVIES_API_KEY, null, page);
+    } else {
+      return mApi.getTopRated(BuildConfig.MOVIES_API_KEY, null, page);
+    }
   }
 
 }

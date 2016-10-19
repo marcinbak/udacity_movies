@@ -19,7 +19,7 @@ import dagger.Provides;
 import de.neofonie.mbak.movies.R;
 import de.neofonie.mbak.movies.di.qualifiers.ForApplication;
 import de.neofonie.mbak.movies.di.scopes.ApplicationScope;
-import de.neofonie.mbak.movies.modules.MoviesApi;
+import de.neofonie.mbak.movies.modules.movies.MoviesApi;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.moshi.MoshiConverterFactory;

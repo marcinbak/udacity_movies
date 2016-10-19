@@ -16,7 +16,7 @@ import com.bumptech.glide.Glide;
 import de.neofonie.mbak.movies.R;
 import de.neofonie.mbak.movies.di.ActivityComponent;
 import de.neofonie.mbak.movies.di.base.BaseFragment;
-import de.neofonie.mbak.movies.modules.Movie;
+import de.neofonie.mbak.movies.modules.movies.Movie;
 import org.parceler.Parcels;
 
 import java.util.Locale;
@@ -86,4 +86,5 @@ public class DetailsFragment extends BaseFragment {
       mMovie = Parcels.unwrap(((Activity) context).getIntent().getParcelableExtra(DetailsActivity.MOVIE_EXTRA));
     }
   }
+
 }

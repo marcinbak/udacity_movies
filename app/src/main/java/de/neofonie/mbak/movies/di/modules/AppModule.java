@@ -14,6 +14,7 @@ package de.neofonie.mbak.movies.di.modules;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import dagger.Module;
 import dagger.Provides;
 import de.neofonie.mbak.movies.di.base.BaseApplication;
@@ -26,6 +27,7 @@ import de.neofonie.mbak.movies.di.scopes.ApplicationScope;
 @Module
 public final class AppModule {
 
+  private final static String PREFS_NAME = "sadkjafsksadf89239y8afsvgis";
   private final BaseApplication app;
 
   public AppModule(BaseApplication app) {
@@ -45,5 +47,9 @@ public final class AppModule {
     return app.getApplicationContext();
   }
 
-
+  @Provides
+  @ApplicationScope
+  SharedPreferences provideSharedPreferences() {
+    return app.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+  }
 }
