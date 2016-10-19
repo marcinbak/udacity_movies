@@ -1,5 +1,6 @@
 package de.neofonie.mbak.movies.ui.movies;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -164,6 +165,12 @@ public class MoviesGridFragment extends BaseFragment implements AdapterView.OnIt
         .setMessage(R.string.network_error_msg)
         .setCancelable(false)
         .setNegativeButton(R.string.close_label, null)
+        .setPositiveButton(R.string.retry_label, new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            subscribeForPage(null);
+          }
+        })
         .show();
 
     mDialogDisposable.dispose();
