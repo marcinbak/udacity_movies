@@ -86,7 +86,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
       mModel = movie;
 
       Glide.with(mContext)
-          .load("http://image.tmdb.org/t/p/w185/" + movie.getPoster_path())
+          .load(movie.getTeaserPath())
           .fitCenter()
           .into(mTeaserImageView);
     }
@@ -94,7 +94,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     @OnClick(R.id.movie_teaser)
     public void clickTeaser() {
       if (mModel != null) {
-        DetailsActivity.start(mContext, mModel.getId());
+        DetailsActivity.start(mContext, mModel);
       }
     }
   }

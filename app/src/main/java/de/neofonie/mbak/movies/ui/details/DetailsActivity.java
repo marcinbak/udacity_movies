@@ -5,14 +5,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import de.neofonie.mbak.movies.R;
 import de.neofonie.mbak.movies.di.base.BaseActivity;
+import de.neofonie.mbak.movies.modules.Movie;
+import org.parceler.Parcels;
 
 public class DetailsActivity extends BaseActivity {
 
-  private final static String MOVIE_ID_EXTRA = "MOVIE_ID_EXTRA";
+  public final static String MOVIE_EXTRA = "MOVIE_EXTRA";
 
-  public static void start(Context context, long movieId) {
+  public static void start(Context context, Movie movie) {
     Intent intent = new Intent(context, DetailsActivity.class);
-    intent.putExtra(MOVIE_ID_EXTRA, movieId);
+    intent.putExtra(MOVIE_EXTRA, Parcels.wrap(movie));
     context.startActivity(intent);
   }
 

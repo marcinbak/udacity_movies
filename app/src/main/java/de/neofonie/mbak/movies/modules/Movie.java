@@ -12,13 +12,16 @@
  */
 package de.neofonie.mbak.movies.modules;
 
-import lombok.Data;
+import org.parceler.Parcel;
 
 /**
  * Created by marcinbak on 18/10/2016.
  */
-@Data
+@Parcel
 public class Movie {
+
+  public Movie() {
+  }
 
   //"/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg"
   String poster_path;
@@ -26,7 +29,41 @@ public class Movie {
   String release_date;
   String title;
   String original_title;
-  long   id;
+  Double vote_average;
+  Long   id;
+
+  public String getPoster_path() {
+    return poster_path;
+  }
+
+  public String getOverview() {
+    return overview;
+  }
+
+  public String getRelease_date() {
+    return release_date;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public String getOriginal_title() {
+    return original_title;
+  }
+
+  public Double getVote_average() {
+    return vote_average;
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public String getTeaserPath() {
+    return "http://image.tmdb.org/t/p/w185/" + poster_path;
+  }
+
 }
 
 //    "adult": false,

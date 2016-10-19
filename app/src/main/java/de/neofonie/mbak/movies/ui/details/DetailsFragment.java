@@ -1,13 +1,25 @@
 package de.neofonie.mbak.movies.ui.details;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import com.bumptech.glide.Glide;
 import de.neofonie.mbak.movies.R;
 import de.neofonie.mbak.movies.di.ActivityComponent;
 import de.neofonie.mbak.movies.di.base.BaseFragment;
+import de.neofonie.mbak.movies.modules.Movie;
+import org.parceler.Parcels;
+
+import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -15,14 +27,14 @@ import de.neofonie.mbak.movies.di.base.BaseFragment;
  * create an instance of this fragment.
  */
 public class DetailsFragment extends BaseFragment {
-  // TODO: Rename parameter arguments, choose names that match
-  // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-  private static final String ARG_PARAM1 = "param1";
-  private static final String ARG_PARAM2 = "param2";
 
-  // TODO: Rename and change types of parameters
-  private String mParam1;
-  private String mParam2;
+  @BindView(R.id.movie_teaser)      ImageView mMovieTeaser;
+  @BindView(R.id.title_text)        TextView  mTitleText;
+  @BindView(R.id.release_date_text) TextView  mReleaseDateText;
+  @BindView(R.id.vote_text)         TextView  mVotesText;
+  @BindView(R.id.synopsis_text)     TextView  mSynopsisText;
+
+  private Movie mMovie;
 
   public DetailsFragment() {
     // Required empty public constructor
@@ -30,40 +42,48 @@ public class DetailsFragment extends BaseFragment {
 
   /**
    * Use this factory method to create a new instance of
-   * this fragment using the provided parameters.
+   * this fragment.
    *
-   * @param param1 Parameter 1.
-   * @param param2 Parameter 2.
    * @return A new instance of fragment MoviesGridFragment.
    */
-  // TODO: Rename and change types and number of parameters
-  public static DetailsFragment newInstance(String param1, String param2) {
+  public static DetailsFragment newInstance() {
     DetailsFragment fragment = new DetailsFragment();
-    Bundle args = new Bundle();
-    args.putString(ARG_PARAM1, param1);
-    args.putString(ARG_PARAM2, param2);
-    fragment.setArguments(args);
     return fragment;
-  }
-
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    if (getArguments() != null) {
-      mParam1 = getArguments().getString(ARG_PARAM1);
-      mParam2 = getArguments().getString(ARG_PARAM2);
-    }
   }
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
     // Inflate the layout for this fragment
-    return inflater.inflate(R.layout.fragment_movies_grid, container, false);
+    return inflater.inflate(R.layout.fragment_movie_details, container, false);
+  }
+
+  @Override
+  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+    ButterKnife.bind(this, view);
+    if (mMovie != null) {
+      mTitleText.setText(mMovie.getTitle());
+      mReleaseDateText.setText(mMovie.getRelease_date());
+      mVotesText.setText(String.format(Locale.getDefault(), "%2.2f", mMovie.getVote_average()));
+      mSynopsisText.setText(mMovie.getOverview());
+      Glide.with(getActivity())
+          .load(mMovie.getTeaserPath())
+          .fitCenter()
+          .into(mMovieTeaser);
+    }
   }
 
   @Override
   protected void inject(ActivityComponent component) {
     component.inject(this);
+  }
+
+  @Override
+  public void onAttach(Context context) {
+    super.onAttach(context);
+    if (context instanceof Activity) {
+      mMovie = Parcels.unwrap(((Activity) context).getIntent().getParcelableExtra(DetailsActivity.MOVIE_EXTRA));
+    }
   }
 }
