@@ -34,7 +34,8 @@ import javax.inject.Inject;
  */
 public class MoviesGridFragment extends BaseFragment implements AdapterView.OnItemSelectedListener {
 
-  @BindView(R.id.recycler_view) RecyclerView mRecyclerView;
+  @BindView(R.id.recycler_view)  RecyclerView mRecyclerView;
+  @BindView(R.id.loading_layout) View         mLoadingLayout;
 
   @Inject MoviesManager      mMoviesManager;
   @Inject PreferencesManager mPrefsManager;
@@ -123,6 +124,9 @@ public class MoviesGridFragment extends BaseFragment implements AdapterView.OnIt
     if (mLoading) {
       return;
     }
+    if (page == null) { // only when requesting first page
+      mLoadingLayout.setVisibility(View.VISIBLE);
+    }
     mLoading = true;
     mDisposable.dispose();
     mDisposable = mMoviesManager
@@ -148,6 +152,7 @@ public class MoviesGridFragment extends BaseFragment implements AdapterView.OnIt
       mAdapter.nextPage(moviesResponse.getResults());
     } else {
       mAdapter.setData(moviesResponse.getResults());
+      mLoadingLayout.setVisibility(View.GONE);
     }
   }
 
