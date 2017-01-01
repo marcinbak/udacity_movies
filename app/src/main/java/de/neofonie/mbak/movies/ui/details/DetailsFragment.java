@@ -69,6 +69,8 @@ public class DetailsFragment extends BaseFragment {
       mSynopsisText.setText(mMovie.getOverview());
       Glide.with(getActivity())
           .load(mMovie.getTeaserPath())
+          .placeholder(R.drawable.movie_placeholder)
+          .error(R.drawable.movie_placeholder_error)
           .fitCenter()
           .into(mMovieTeaser);
     }
