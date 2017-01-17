@@ -14,12 +14,14 @@ package de.neofonie.mbak.movies.modules.movies;
 
 import de.neofonie.mbak.movies.BuildConfig;
 import de.neofonie.mbak.movies.di.scopes.ApplicationScope;
+import de.neofonie.mbak.movies.modules.movies.provider.FavoriteMoviesManager;
 import de.neofonie.mbak.movies.modules.preferences.PreferencesManager;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Created by marcinbak on 18/10/2016.
@@ -27,8 +29,9 @@ import java.util.List;
 @ApplicationScope
 public class MoviesManager {
 
-  @Inject MoviesApi          mApi;
-  @Inject PreferencesManager mPrefsManager;
+  @Inject MoviesApi             mApi;
+  @Inject PreferencesManager    mPrefsManager;
+  @Inject FavoriteMoviesManager mFavoriteMoviesManager;
 
   @Inject
   MoviesManager() {
@@ -37,10 +40,26 @@ public class MoviesManager {
   public Single<MoviesResponse> getMovies(Integer page) {
     int sortType = mPrefsManager.getSelectedSortType();
 
-    if (sortType == 0) {
-      return mApi.getPopular(BuildConfig.MOVIES_API_KEY, null, page);
-    } else {
-      return mApi.getTopRated(BuildConfig.MOVIES_API_KEY, null, page);
+    switch (sortType) {
+      case 0:
+        return mApi.getPopular(BuildConfig.MOVIES_API_KEY, null, page);
+      case 1:
+        return mApi.getTopRated(BuildConfig.MOVIES_API_KEY, null, page);
+      case 2:
+        return mFavoriteMoviesManager.getAllFavorite()
+            .map(new Function<Vector<Movie>, MoviesResponse>() {
+              @Override
+              public MoviesResponse apply(Vector<Movie> movies) throws Exception {
+                MoviesResponse response = new MoviesResponse();
+                response.setPage(1);
+                response.setTotal_pages(1);
+                response.setTotal_results(movies.size());
+                response.setResults(movies);
+                return response;
+              }
+            });
+      default:
+        return Single.error(new IllegalArgumentException("Illegal value of sort type: " + sortType));
     }
   }
 

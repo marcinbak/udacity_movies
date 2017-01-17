@@ -3,5 +3,6 @@
   <string-array name="sort_options">
     <item>By top rated</item>
     <item>By most popular</item>
+    <item>Favorite</item>
   </string-array>
 </resources>
