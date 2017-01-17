@@ -16,8 +16,10 @@ import de.neofonie.mbak.movies.BuildConfig;
 import de.neofonie.mbak.movies.di.scopes.ApplicationScope;
 import de.neofonie.mbak.movies.modules.preferences.PreferencesManager;
 import io.reactivex.Single;
+import io.reactivex.functions.Function;
 
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  * Created by marcinbak on 18/10/2016.
@@ -40,6 +42,26 @@ public class MoviesManager {
     } else {
       return mApi.getTopRated(BuildConfig.MOVIES_API_KEY, null, page);
     }
+  }
+
+  public Single<List<MovieTrailer>> getVideos(Movie movie) {
+    return mApi.getVideos(movie.getId().toString(), BuildConfig.MOVIES_API_KEY)
+        .map(new Function<VideosResponse, List<MovieTrailer>>() {
+          @Override
+          public List<MovieTrailer> apply(VideosResponse videosResponse) throws Exception {
+            return videosResponse.getResults();
+          }
+        });
+  }
+
+  public Single<List<MovieReview>> getReviews(Movie movie) {
+    return mApi.getReviews(movie.getId().toString(), BuildConfig.MOVIES_API_KEY)
+        .map(new Function<ReviewsResponse, List<MovieReview>>() {
+          @Override
+          public List<MovieReview> apply(ReviewsResponse reviewsResponse) throws Exception {
+            return reviewsResponse.getResults();
+          }
+        });
   }
 
 }

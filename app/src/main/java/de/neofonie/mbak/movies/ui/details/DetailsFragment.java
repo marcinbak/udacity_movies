@@ -2,24 +2,38 @@ package de.neofonie.mbak.movies.ui.details;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.bumptech.glide.Glide;
 import de.neofonie.mbak.movies.R;
 import de.neofonie.mbak.movies.di.ActivityComponent;
 import de.neofonie.mbak.movies.di.base.BaseFragment;
 import de.neofonie.mbak.movies.modules.movies.Movie;
+import de.neofonie.mbak.movies.modules.movies.MovieReview;
+import de.neofonie.mbak.movies.modules.movies.MovieTrailer;
+import de.neofonie.mbak.movies.modules.movies.MoviesManager;
+import de.neofonie.mbak.movies.ui.widgets.*;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.Disposables;
+import io.reactivex.functions.BiConsumer;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.schedulers.Schedulers;
 import org.parceler.Parcels;
 
-import java.util.Locale;
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,13 +42,14 @@ import java.util.Locale;
  */
 public class DetailsFragment extends BaseFragment {
 
-  @BindView(R.id.movie_teaser)      ImageView mMovieTeaser;
-  @BindView(R.id.title_text)        TextView  mTitleText;
-  @BindView(R.id.release_date_text) TextView  mReleaseDateText;
-  @BindView(R.id.vote_text)         TextView  mVotesText;
-  @BindView(R.id.synopsis_text)     TextView  mSynopsisText;
+  @BindView(R.id.recycler_view) RecyclerView mRecycler;
 
-  private Movie mMovie;
+  @Inject MoviesManager mMoviesManager;
+
+  private Movie                          mMovie;
+  private TypedViewHolderAdapter<Object> mAdapter;
+
+  private Disposable mDisposable = Disposables.disposed();
 
   public DetailsFragment() {
     // Required empty public constructor
@@ -62,18 +77,65 @@ public class DetailsFragment extends BaseFragment {
   public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     ButterKnife.bind(this, view);
+    mRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
     if (mMovie != null) {
-      mTitleText.setText(mMovie.getTitle());
-      mReleaseDateText.setText(mMovie.getRelease_date());
-      mVotesText.setText(String.format(Locale.getDefault(), "%2.2f", mMovie.getVote_average()));
-      mSynopsisText.setText(mMovie.getOverview());
-      Glide.with(getActivity())
-          .load(mMovie.getTeaserPath())
-          .placeholder(R.drawable.movie_placeholder)
-          .error(R.drawable.movie_placeholder_error)
-          .fitCenter()
-          .into(mMovieTeaser);
+      mAdapter = new TypedViewHolderAdapter.Builder<>()
+          .addFactory(SummaryHolder.factory())
+          .addFactory(HeaderHolder.factory())
+          .addFactory(TrailerHolder.factory(new TrailerHolder.TrailerClickedListener() {
+            @Override
+            public void onTrailerClick(MovieTrailer trailer) {
+              // TODO open trailer
+              String videoUrl = getString(R.string.youtube_url, trailer.getKey());
+              startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl)));
+            }
+          }))
+          .addFactory(ReviewHolder.factory())
+          .build();
+
+      mAdapter.setData(new ArrayList<Object>(Collections.singletonList(mMovie)));
+      mRecycler.setAdapter(mAdapter);
     }
+  }
+
+  @Override
+  public void onStart() {
+    super.onStart();
+
+    if (mMovie != null && mAdapter != null && mAdapter.getItemCount() <= 1) {
+      mMoviesManager.getVideos(mMovie)
+          .zipWith(mMoviesManager.getReviews(mMovie), new BiFunction<List<MovieTrailer>, List<MovieReview>, List<Object>>() {
+            @Override
+            public List<Object> apply(List<MovieTrailer> movieTrailers, List<MovieReview> movieReviews) throws Exception {
+              ArrayList<Object> completeList = new ArrayList<>(movieReviews.size() + movieTrailers.size() + 3);
+              completeList.add(mMovie);
+              completeList.add("Trailers");
+              completeList.addAll(movieTrailers);
+              completeList.add("Reviews");
+              completeList.addAll(movieReviews);
+              return completeList;
+            }
+          })
+          .subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread())
+          .subscribe(new BiConsumer<List<Object>, Throwable>() {
+            @Override
+            public void accept(List<Object> objects, Throwable throwable) throws Exception {
+              loadData(objects);
+            }
+          });
+    }
+  }
+
+  private void loadData(List<Object> objects) {
+    mAdapter.setData(objects);
+    mAdapter.notifyItemRangeInserted(1, objects.size() - 1);
+  }
+
+  @Override
+  public void onStop() {
+    super.onStop();
+    mDisposable.dispose();
   }
 
   @Override

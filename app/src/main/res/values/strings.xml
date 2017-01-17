@@ -7,4 +7,7 @@
   <string name="network_error_msg">Could not retrieve data from server. Please click Retry or try again later.</string>
   <string name="close_label">Close</string>
   <string name="retry_label">Retry</string>
+  <string name="trailer_label">Watch %1$s on %2$s at %3$d</string>
+  <string name="author_label">By %s</string>
+  <string name="youtube_url" translatable="false">https://www.youtube.com/watch?v=%s</string>
 </resources>

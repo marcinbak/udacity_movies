@@ -15,6 +15,7 @@ package de.neofonie.mbak.movies.modules.movies;
 import io.reactivex.Single;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
@@ -34,4 +35,12 @@ public interface MoviesApi {
                                      @Query("language") String language,
                                      @Query("page") Integer page);
 
+
+  @GET("/3/movie/{id}/videos")
+  @Headers("Accept: application/json")
+  Single<VideosResponse> getVideos(@Path("id") String id, @Query("api_key") String apiKey);
+
+  @GET("/3/movie/{id}/reviews")
+  @Headers("Accept: application/json")
+  Single<ReviewsResponse> getReviews(@Path("id") String id, @Query("api_key") String apiKey);
 }

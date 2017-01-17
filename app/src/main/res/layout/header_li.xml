@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
+
+  <!--title, release date, movie poster, vote average, and plot synopsis.-->
+  <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:id="@+id/header_text"
+      tools:text="Header"
+      android:textAllCaps="true"
+      android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+      android:layout_marginStart="8dp"
+      android:layout_marginLeft="8dp"/>
+
+</FrameLayout>
