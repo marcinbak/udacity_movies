@@ -14,4 +14,5 @@
   <string name="unfavorite_label">Unfavorite</string>
   <string name="error_favorite_state_check">Error during checking favorite state for this lesson.</string>
   <string name="error_favorite_toggle">Toggling favorite state failed.</string>
+  <string name="share_label">Share</string>
 </resources>

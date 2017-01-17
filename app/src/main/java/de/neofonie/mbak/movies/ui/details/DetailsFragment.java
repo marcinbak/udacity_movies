@@ -11,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.*;
+import android.widget.ShareActionProvider;
 import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -52,9 +53,11 @@ public class DetailsFragment extends BaseFragment {
 
   private Movie                          mMovie;
   private TypedViewHolderAdapter<Object> mAdapter;
+  private ShareActionProvider            mShareActionProvider;
 
   private Disposable mDisposable              = Disposables.disposed();
   private Disposable mFavoriteCheckDisposable = Disposables.disposed();
+  private MenuItem mShareItem;
 
   public DetailsFragment() {
     // Required empty public constructor
@@ -111,6 +114,8 @@ public class DetailsFragment extends BaseFragment {
           .zipWith(mMoviesManager.getReviews(mMovie), new BiFunction<List<MovieTrailer>, List<MovieReview>, List<Object>>() {
             @Override
             public List<Object> apply(List<MovieTrailer> movieTrailers, List<MovieReview> movieReviews) throws Exception {
+              setShareIntent(movieTrailers);
+
               ArrayList<Object> completeList = new ArrayList<>(movieReviews.size() + movieTrailers.size() + 3);
               completeList.add(mMovie);
               completeList.add("Trailers");
@@ -148,6 +153,22 @@ public class DetailsFragment extends BaseFragment {
     inflater.inflate(R.menu.details_menu, menu);
     MenuItem item = menu.findItem(R.id.favorite_toggle);
     setFavoriteStateIcon(item);
+
+    mShareItem = menu.findItem(R.id.menu_item_share);
+    mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+  }
+
+  private void setShareIntent(List<MovieTrailer> movieTrailers) {
+    if (mShareActionProvider != null && movieTrailers.size() > 0) {
+      Intent shareIntent = new Intent(Intent.ACTION_SEND);
+      String url = getString(R.string.youtube_url, movieTrailers.get(0).getKey());
+      shareIntent.putExtra(Intent.EXTRA_TEXT, url);
+      mShareActionProvider.setShareIntent(shareIntent);
+
+      mShareItem.setVisible(true);
+    } else if (movieTrailers.size() == 0) {
+      mShareItem.setVisible(false);
+    }
   }
 
   @Override
@@ -161,6 +182,7 @@ public class DetailsFragment extends BaseFragment {
 
   private void toggleFavorite(final MenuItem item) {
     if (mMovie != null) {
+      mFavoriteCheckDisposable.dispose();
       mFavoriteCheckDisposable = mFavoriteMoviesManager.toggleFavorite(mMovie)
           .subscribeOn(Schedulers.io())
           .observeOn(AndroidSchedulers.mainThread())

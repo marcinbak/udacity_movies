@@ -27,6 +27,7 @@ public class MovieTrailer {
   String  site;
   Integer size;
   String  type;
+
 }
 //    "id": "581f8244c3a3685550002fa3",
 //    "iso_639_1": "en",
