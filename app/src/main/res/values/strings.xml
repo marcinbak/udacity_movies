@@ -10,4 +10,8 @@
   <string name="trailer_label">Watch %1$s on %2$s at %3$d</string>
   <string name="author_label">By %s</string>
   <string name="youtube_url" translatable="false">https://www.youtube.com/watch?v=%s</string>
+  <string name="favorite_label">Favorite</string>
+  <string name="unfavorite_label">Unfavorite</string>
+  <string name="error_favorite_state_check">Error during checking favorite state for this lesson.</string>
+  <string name="error_favorite_toggle">Toggling favorite state failed.</string>
 </resources>

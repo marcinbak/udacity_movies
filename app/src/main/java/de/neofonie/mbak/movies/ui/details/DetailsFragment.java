@@ -9,9 +9,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.util.Log;
+import android.view.*;
+import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.neofonie.mbak.movies.R;
@@ -21,6 +21,7 @@ import de.neofonie.mbak.movies.modules.movies.Movie;
 import de.neofonie.mbak.movies.modules.movies.MovieReview;
 import de.neofonie.mbak.movies.modules.movies.MovieTrailer;
 import de.neofonie.mbak.movies.modules.movies.MoviesManager;
+import de.neofonie.mbak.movies.modules.movies.provider.FavoriteMoviesManager;
 import de.neofonie.mbak.movies.ui.widgets.*;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -42,14 +43,18 @@ import java.util.List;
  */
 public class DetailsFragment extends BaseFragment {
 
+  private static final String TAG = "DetailsFragment";
+
   @BindView(R.id.recycler_view) RecyclerView mRecycler;
 
-  @Inject MoviesManager mMoviesManager;
+  @Inject MoviesManager         mMoviesManager;
+  @Inject FavoriteMoviesManager mFavoriteMoviesManager;
 
   private Movie                          mMovie;
   private TypedViewHolderAdapter<Object> mAdapter;
 
-  private Disposable mDisposable = Disposables.disposed();
+  private Disposable mDisposable              = Disposables.disposed();
+  private Disposable mFavoriteCheckDisposable = Disposables.disposed();
 
   public DetailsFragment() {
     // Required empty public constructor
@@ -85,7 +90,6 @@ public class DetailsFragment extends BaseFragment {
           .addFactory(TrailerHolder.factory(new TrailerHolder.TrailerClickedListener() {
             @Override
             public void onTrailerClick(MovieTrailer trailer) {
-              // TODO open trailer
               String videoUrl = getString(R.string.youtube_url, trailer.getKey());
               startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl)));
             }
@@ -136,6 +140,61 @@ public class DetailsFragment extends BaseFragment {
   public void onStop() {
     super.onStop();
     mDisposable.dispose();
+    mFavoriteCheckDisposable.dispose();
+  }
+
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    inflater.inflate(R.menu.details_menu, menu);
+    MenuItem item = menu.findItem(R.id.favorite_toggle);
+    setFavoriteStateIcon(item);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == R.id.favorite_toggle) {
+      toggleFavorite(item);
+      return true;
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
+  private void toggleFavorite(final MenuItem item) {
+    if (mMovie != null) {
+      mFavoriteCheckDisposable = mFavoriteMoviesManager.toggleFavorite(mMovie)
+          .subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread())
+          .subscribe(new BiConsumer<Boolean, Throwable>() {
+            @Override
+            public void accept(Boolean favorite, Throwable throwable) throws Exception {
+              if (favorite != null) {
+                item.setIcon(favorite ? R.drawable.star : R.drawable.star_outline);
+              } else {
+                Log.e(TAG, "toggleFavorite failed", throwable);
+                Toast.makeText(getContext(), R.string.error_favorite_toggle, Toast.LENGTH_SHORT).show();
+              }
+            }
+          });
+    }
+  }
+
+  private void setFavoriteStateIcon(final MenuItem item) {
+    if (mMovie != null) {
+      mFavoriteCheckDisposable = mFavoriteMoviesManager.isFavorite(mMovie)
+          .subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread())
+          .subscribe(new BiConsumer<Boolean, Throwable>() {
+            @Override
+            public void accept(Boolean favorite, Throwable throwable) throws Exception {
+              if (favorite != null) {
+                item.setIcon(favorite ? R.drawable.star : R.drawable.star_outline);
+              } else {
+                Log.e(TAG, "setFavoriteStateIcon failed", throwable);
+                Toast.makeText(getContext(), R.string.error_favorite_state_check, Toast.LENGTH_SHORT).show();
+              }
+            }
+          });
+    }
   }
 
   @Override
@@ -151,4 +210,9 @@ public class DetailsFragment extends BaseFragment {
     }
   }
 
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setHasOptionsMenu(true);
+  }
 }

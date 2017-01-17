@@ -191,7 +191,7 @@ public class MoviesGridFragment extends BaseFragment implements AdapterView.OnIt
 
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    inflater.inflate(R.menu.details_menu, menu);
+    inflater.inflate(R.menu.main_menu, menu);
     MenuItem item = menu.findItem(R.id.action_sort);
     Spinner spinner = (Spinner) MenuItemCompat.getActionView(item);
     ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),

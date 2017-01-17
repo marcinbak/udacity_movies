@@ -22,6 +22,10 @@
         android:name=".ui.details.DetailsActivity"
         android:parentActivityName=".ui.movies.MainActivity">
     </activity>
+
+    <provider
+        android:authorities="${applicationId}"
+        android:name=".modules.movies.provider.FavoriteMoviesProvider"/>
   </application>
 
 </manifest>

@@ -64,6 +64,33 @@ public class Movie {
     return "http://image.tmdb.org/t/p/w185/" + poster_path;
   }
 
+  public void setPoster_path(String poster_path) {
+    this.poster_path = poster_path;
+  }
+
+  public void setOverview(String overview) {
+    this.overview = overview;
+  }
+
+  public void setRelease_date(String release_date) {
+    this.release_date = release_date;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
+  public void setOriginal_title(String original_title) {
+    this.original_title = original_title;
+  }
+
+  public void setVote_average(Double vote_average) {
+    this.vote_average = vote_average;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
 }
 
 //    "adult": false,
