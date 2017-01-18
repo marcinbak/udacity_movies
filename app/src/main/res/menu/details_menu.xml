@@ -4,9 +4,9 @@
   <item
       android:id="@+id/menu_item_share"
       app:showAsAction="ifRoom"
-      android:title="@string/share_label"
       android:visible="false"
-      android:actionProviderClass="android.widget.ShareActionProvider"/>
+      android:title="@string/share_label"
+      app:actionProviderClass="android.support.v7.widget.ShareActionProvider"/>
   <item
       android:id="@+id/favorite_toggle"
       app:showAsAction="always"

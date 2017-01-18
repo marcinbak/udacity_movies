@@ -7,11 +7,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.ShareCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.*;
-import android.widget.ShareActionProvider;
 import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -54,6 +56,7 @@ public class DetailsFragment extends BaseFragment {
   private Movie                          mMovie;
   private TypedViewHolderAdapter<Object> mAdapter;
   private ShareActionProvider            mShareActionProvider;
+  public  List<MovieTrailer>             mTrailers;
 
   private Disposable mDisposable              = Disposables.disposed();
   private Disposable mFavoriteCheckDisposable = Disposables.disposed();
@@ -112,16 +115,21 @@ public class DetailsFragment extends BaseFragment {
     if (mMovie != null && mAdapter != null && mAdapter.getItemCount() <= 1) {
       mMoviesManager.getVideos(mMovie)
           .zipWith(mMoviesManager.getReviews(mMovie), new BiFunction<List<MovieTrailer>, List<MovieReview>, List<Object>>() {
+
             @Override
             public List<Object> apply(List<MovieTrailer> movieTrailers, List<MovieReview> movieReviews) throws Exception {
-              setShareIntent(movieTrailers);
-
+              mTrailers = movieTrailers;
               ArrayList<Object> completeList = new ArrayList<>(movieReviews.size() + movieTrailers.size() + 3);
               completeList.add(mMovie);
-              completeList.add("Trailers");
-              completeList.addAll(movieTrailers);
-              completeList.add("Reviews");
-              completeList.addAll(movieReviews);
+
+              if (movieTrailers.size() > 0) {
+                completeList.add("Trailers");
+                completeList.addAll(movieTrailers);
+              }
+              if (movieReviews.size() > 0) {
+                completeList.add("Reviews");
+                completeList.addAll(movieReviews);
+              }
               return completeList;
             }
           })
@@ -131,6 +139,7 @@ public class DetailsFragment extends BaseFragment {
             @Override
             public void accept(List<Object> objects, Throwable throwable) throws Exception {
               loadData(objects);
+              setShareIntent(mTrailers);
             }
           });
     }
@@ -155,16 +164,19 @@ public class DetailsFragment extends BaseFragment {
     setFavoriteStateIcon(item);
 
     mShareItem = menu.findItem(R.id.menu_item_share);
-    mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+    mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(mShareItem);
   }
 
   private void setShareIntent(List<MovieTrailer> movieTrailers) {
     if (mShareActionProvider != null && movieTrailers.size() > 0) {
-      Intent shareIntent = new Intent(Intent.ACTION_SEND);
       String url = getString(R.string.youtube_url, movieTrailers.get(0).getKey());
-      shareIntent.putExtra(Intent.EXTRA_TEXT, url);
-      mShareActionProvider.setShareIntent(shareIntent);
+      Intent shareIntent = ShareCompat.IntentBuilder
+          .from(getActivity())
+          .setType("text/plain")
+          .setText(url)
+          .getIntent();
 
+      mShareActionProvider.setShareIntent(shareIntent);
       mShareItem.setVisible(true);
     } else if (movieTrailers.size() == 0) {
       mShareItem.setVisible(false);
