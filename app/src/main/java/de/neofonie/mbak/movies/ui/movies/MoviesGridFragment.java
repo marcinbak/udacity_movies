@@ -105,7 +105,6 @@ public class MoviesGridFragment extends BaseFragment implements AdapterView.OnIt
     };
 
     mRecyclerView.addOnScrollListener(mScrollListener);
-    subscribeForPage(null);
   }
 
   @Override
@@ -121,6 +120,7 @@ public class MoviesGridFragment extends BaseFragment implements AdapterView.OnIt
 
   @Override
   public void onStart() {
+    subscribeForPage(null);
     super.onStart();
   }
 
